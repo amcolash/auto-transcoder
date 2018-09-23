@@ -1,0 +1,8 @@
+version: '3'
+services:
+  transcoder:
+    image: "ntodd/video-transcoding"
+    volumes:
+      - "./videos:/videos"
+    working_dir: /videos
+    command: "transcode-video --add-audio eng --quick /videos/centaur_2.mpg"
