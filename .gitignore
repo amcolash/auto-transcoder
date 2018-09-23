@@ -1,1 +1,4 @@
 videos/
+samples/
+.env
+skipped_files.txt
