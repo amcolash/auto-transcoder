@@ -4,5 +4,5 @@ services:
     image: "ntodd/video-transcoding"
     volumes:
       - "$VIDEO_DIR:/videos"
-    working_dir: /videos
+    working_dir: /videos/$WORKING_DIR
     command: "transcode-video --add-audio eng --quick /$FILE"

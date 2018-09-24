@@ -22,9 +22,9 @@ touch skipped_files.txt
 
 # TESTING
 if [ $DEBUG = true ]; then
-    rm -rf "videos with space/"
-    mkdir "videos with space/"
-    cp samples/* "videos with space"
+    rm -rf "$VIDEO_DIR"
+    mkdir -p "$VIDEO_DIR/test/test/"
+    cp samples/* "$VIDEO_DIR/test/test/"
 fi
 
 if [ ! -d "$VIDEO_DIR" ]; then
@@ -38,15 +38,27 @@ while true; do
     FULL_PATH=`find "$VIDEO_DIR" -name '*.mpg' -o -name '*.ts' | grep -vFf skipped_files.txt | head -n 1`
     FILE=`basename "$FULL_PATH"`
     FILE_WITHOUT_EXT=`basename "$FILE" ".${FILE##*.}"`
+    PARENT_PATH=`dirname "$FULL_PATH"`
+    RELATIVE_PATH=`dirname "${FULL_PATH#"$VIDEO_DIR"}"`
+
+    debug_echo full: $FULL_PATH
+    debug_echo file: $FILE
+    debug_echo file without ext: $FILE_WITHOUT_EXT
+    debug_echo parent path: $PARENT_PATH
+    debug_echo path: $RELATIVE_PATH
 
     # If we found a file
     if [ ${#FILE} -gt 0 ]; then
         debug_echo Beginning transcode of $FILE
 
-        # Push the file into an env var that docker picks up
-        rm .env
+        # Clear old env file
+        if [ -f .env ]; then
+            rm .env
+        fi
+        # Push in some env vars for docker
         echo VIDEO_DIR="$VIDEO_DIR" >> .env
-        echo FILE=\"videos/"$FILE"\" >> .env
+        echo WORKING_DIR="$RELATIVE_PATH" >> .env
+        echo FILE=\"/videos/"$RELATIVE_PATH"/"$FILE"\" >> .env
 
         # Run the transcode container
         docker-compose up
@@ -61,12 +73,12 @@ while true; do
             debug_echo Cleaning up
 
             # Clean things up
-            rm -f "$VIDEO_DIR/$FILE_WITHOUT_EXT.mkv.log"
+            rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv.log"
             rm -f "$FULL_PATH"
         else
             # Something went wrong, keep logs and add file to skip list
             debug_echo Something went wrong, cleaning temp files
-            rm -f "$VIDEO_DIR/$FILE_WITHOUT_EXT.mkv"
+            rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
             echo "$FULL_PATH" >> skipped_files.txt
         fi
 
