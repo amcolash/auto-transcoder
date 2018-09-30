@@ -1,9 +1,9 @@
 #!/bin/bash
 
-VIDEO_DIR=/videos
-
 # Enable for logging + testing
-DEBUG=true
+if [ -z "$DEBUG" ]; then
+    DEBUG=false
+fi
 
 # Helper logging function
 function debug_echo()
@@ -22,7 +22,7 @@ touch skipped_files.txt
 # This is going to run indefinitely (waiting for new files)
 while true; do
     # Try to find a file to transcode
-    FULL_PATH=`find "$VIDEO_DIR" -name '*.mpg' -o -name '*.ts' | grep -vFf skipped_files.txt | head -n 1`
+    FULL_PATH=`find "/videos" -name '*.mpg' -o -name '*.ts' | grep -vFf skipped_files.txt | head -n 1`
     FILE=`basename "$FULL_PATH"`
     FILE_WITHOUT_EXT=`basename "$FILE" ".${FILE##*.}"`
     PARENT_PATH=`dirname "$FULL_PATH"`
@@ -37,7 +37,7 @@ while true; do
         debug_echo Beginning transcode of $FILE
 
         # Change working dir
-        pushd "$PARENT_PATH"
+        pushd "$PARENT_PATH" > /dev/null
 
         # Clean things up if there is an existing file there
         if [ -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv" ]; then
@@ -65,7 +65,7 @@ while true; do
         fi
 
         # Back to working dir
-        popd
+        popd > /dev/null
 
         sleep 1
     else

@@ -6,3 +6,5 @@ services:
       - "./test spaces:/videos"
     working_dir: /videos
     build: .
+    env_file:
+      .env
