@@ -1,8 +1,8 @@
 version: '3'
 services:
   transcoder:
-    image: "ntodd/video-transcoding"
+    image: "amcolash/video-transcoding"
     volumes:
-      - "$VIDEO_DIR:/videos"
-    working_dir: /videos/$WORKING_DIR
-    command: "transcode-video --add-audio eng --quick /$FILE"
+      - "./test spaces:/videos"
+    working_dir: /videos
+    build: .
