@@ -2,10 +2,11 @@ version: '3'
 services:
   transcoder:
     image: "amcolash/auto-transcoder"
+    container_name: transcoder
+    restart: unless-stopped
     volumes:
       - "$VIDEO_DIR:/videos"
     working_dir: /videos
     build: .
     env_file:
       .env
-    container_name: transcoder
