@@ -3,7 +3,7 @@ services:
   transcoder:
     image: "amcolash/video-transcoding"
     volumes:
-      - "./test spaces:/videos"
+      - "/volume1/homes/amcolash/data/Videos:/videos"
     working_dir: /videos
     build: .
     env_file:
