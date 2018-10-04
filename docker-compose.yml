@@ -5,6 +5,7 @@ services:
     container_name: transcoder
     restart: unless-stopped
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - "$VIDEO_DIR:/videos"
     working_dir: /videos
     build: .
