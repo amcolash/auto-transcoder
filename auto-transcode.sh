@@ -14,15 +14,15 @@ function debug_echo()
 }
 
 # Cleanup skipped files - give them another chance
-if [ -f skipped_files.txt ]; then
-    rm skipped_files.txt
+if [ -f /videos/skipped_files.txt ]; then
+    rm /videos/skipped_files.txt
 fi
-touch skipped_files.txt
+touch /videos/skipped_files.txt
 
 # This is going to run indefinitely (waiting for new files)
 while true; do
     # Try to find a file to transcode
-    FULL_PATH=`find "/videos" -name '*.mpg' -o -name '*.ts' | grep -vFf skipped_files.txt | head -n 1`
+    FULL_PATH=`find "/videos" -name '*.mpg' -o -name '*.ts' | grep -vFf /videos/skipped_files.txt | head -n 1`
     FILE=`basename "$FULL_PATH"`
     FILE_WITHOUT_EXT=`basename "$FILE" ".${FILE##*.}"`
     PARENT_PATH=`dirname "$FULL_PATH"`
@@ -61,7 +61,7 @@ while true; do
             # Something went wrong, keep logs and add file to skip list
             debug_echo Something went wrong, cleaning temp files
             rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
-            echo "$FULL_PATH" >> skipped_files.txt
+            echo "$FULL_PATH" >> /videos/skipped_files.txt
         fi
 
         # Back to working dir
