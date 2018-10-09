@@ -26,8 +26,10 @@ fi
 # Copy files
 cp -R samples/* "test spaces/"
 
-# Put the container into debug mode
+# Put the container into debug mode, add video path
+rm .env
 echo DEBUG=true > .env
+echo VIDEO_DIR="test spaces/" >> .env
 
 # Build docker container
 docker-compose build

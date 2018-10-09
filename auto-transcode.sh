@@ -27,14 +27,14 @@ while true; do
     FILE_WITHOUT_EXT=`basename "$FILE" ".${FILE##*.}"`
     PARENT_PATH=`dirname "$FULL_PATH"`
 
-    debug_echo full: $FULL_PATH
-    debug_echo file: $FILE
-    debug_echo file without ext: $FILE_WITHOUT_EXT
-    debug_echo parent path: $PARENT_PATH
-
     # If we found a file
     if [ ${#FILE} -gt 0 ]; then
-        debug_echo Beginning transcode of $FILE
+        debug_echo full: $FULL_PATH
+        debug_echo file: $FILE
+        debug_echo file without ext: $FILE_WITHOUT_EXT
+        debug_echo parent path: $PARENT_PATH
+
+        echo Beginning transcode of $FILE
 
         # Change working dir
         pushd "$PARENT_PATH" > /dev/null
@@ -70,7 +70,7 @@ while true; do
         sleep 1
     else
         # Nothing
-        debug_echo NOOP
+        echo No files found, waiting to check again...
 
         # Exit if we are debugging here
         if [ $DEBUG = true ]; then
