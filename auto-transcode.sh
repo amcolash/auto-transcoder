@@ -14,18 +14,40 @@ function debug_echo()
 }
 
 # Cleanup skipped files - give them another chance
-if [ -f /videos/skipped_files.txt ]; then
-    rm /videos/skipped_files.txt
-fi
+rm -f /videos/skipped_files.txt
 touch /videos/skipped_files.txt
 
 # This is going to run indefinitely (waiting for new files)
 while true; do
-    # Try to find a file to transcode
-    FULL_PATH=`find "/videos" -name '*.mpg' -o -name '*.ts' | grep -vFf /videos/skipped_files.txt | head -n 1`
-    FILE=`basename "$FULL_PATH"`
-    FILE_WITHOUT_EXT=`basename "$FILE" ".${FILE##*.}"`
-    PARENT_PATH=`dirname "$FULL_PATH"`
+
+    # Find all files
+    while read FULL_PATH; do
+        # Ignore empty lines
+        if [ ${#FULL_PATH} -eq 0 ]; then
+            continue
+        fi
+
+        # Get parts of the file name
+        FILE=`basename "$FULL_PATH"`
+        FILE_WITHOUT_EXT=`basename "$FILE" ".${FILE##*.}"`
+        PARENT_PATH=`dirname "$FULL_PATH"`
+
+        # Check if the file is locked, if it is ignore (for now), else contine on to convert
+        if [ -f "$FULL_PATH.lock" ]; then
+            echo Found a locked file: $FULL_PATH
+
+            # Clean up variables if there is nothing else in the queue
+            unset FULL_PATH
+            unset FILE
+            unset FILE_WITHOUT_EXT
+            unset PARENT_PATH
+        else
+            echo Found a non-locked file: $FULL_PATH
+            break
+        fi
+
+    # Some bash magic that makes this all run in the same process, the found files are piped in a different way to the loop
+    done < <(find "/videos" -name '*.mpg' -o -name '*.ts' | sort | grep -vaFf "/videos/skipped_files.txt")
 
     # If we found a file
     if [ ${#FILE} -gt 0 ]; then
@@ -40,9 +62,7 @@ while true; do
         pushd "$PARENT_PATH" > /dev/null
 
         # Clean things up if there is an existing file there
-        if [ -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv" ]; then
-            rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
-        fi
+        rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
 
         # Wait for container and get exit code
         transcode-video --add-audio eng --quick "$FILE"

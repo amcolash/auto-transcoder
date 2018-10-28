@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Start where the script lives
+pushd $(dirname "$0") > /dev/null
+
 # Cleanup / Remake tests
 rm -rf "test spaces/"
 mkdir "test spaces/"
@@ -14,6 +17,8 @@ if [ ! -d samples/ ]; then
     wget http://hubblesource.stsci.edu/sources/video/clips/details/images/centaur_2.mpg
 
     touch "not a video.ts"
+    touch "test locking.mpg"
+    touch "test locking.mpg.lock"
 
     pushd "nested spaces" > /dev/null
     wget http://hubblesource.stsci.edu/sources/video/clips/details/images/hale_bopp_2.mpg
@@ -27,9 +32,9 @@ fi
 cp -R samples/* "test spaces/"
 
 # Put the container into debug mode, add video path
-rm .env
+rm -f .env
 echo DEBUG=true > .env
-echo VIDEO_DIR="test spaces/" >> .env
+echo VIDEO_DIR="./test spaces/" >> .env
 
 # Build docker container
 docker-compose build
@@ -37,14 +42,20 @@ docker-compose build
 # Test it
 docker-compose up
 
+# Stop things since it is set to auto-restart
+docker-compose down
+
 # Remove the debug mode
-rm .env
+rm -f .env
 
 # Check things
-echo "All Done! Here is what we got... (Should not have logs, should only have one bad file)"
+echo "All Done! Here is what we got... (For now need to manually check things out)"
 echo
 echo Files:
-find "test spaces"
+find "test spaces" -type f | sort
 echo
-echo skipped_files.txt
+echo skipped_files.txt:
 cat "test spaces/skipped_files.txt"
+
+# Back to the start
+popd > /dev/null
