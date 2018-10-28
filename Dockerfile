@@ -1,4 +1,4 @@
-# amcolash/auto-transcoding:0.1
+# amcolash/auto-transcoder:0.1
 
 FROM ntodd/video-transcoding:latest
 LABEL maintainer="Andrew McOlash <amcolash@gmail.com>"
