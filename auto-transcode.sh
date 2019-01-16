@@ -20,8 +20,8 @@ while true; do
 
     # Find all files (this is a do-while loop, look below)
     while read FULL_PATH; do
-        # Ignore empty lines
-        if [ ${#FULL_PATH} -eq 0 ]; then
+        # Ignore empty lines and if the file doesn't exist for some reason
+        if [ ${#FULL_PATH} -eq 0 ] || [ ! -f $FULL_PATH ]; then
             continue
         fi
 
@@ -39,6 +39,8 @@ while true; do
             unset FILE
             unset FILE_WITHOUT_EXT
             unset PARENT_PATH
+
+            continue
         else
             echo Found a non-locked file: $FULL_PATH
             break
