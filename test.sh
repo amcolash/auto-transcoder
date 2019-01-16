@@ -6,6 +6,7 @@ pushd $(dirname "$0") > /dev/null
 # Cleanup / Remake tests
 rm -rf "test spaces/"
 mkdir "test spaces/"
+mkdir "test spaces/multilevel 'quotes/"
 
 # Get files if needed
 if [ ! -d samples/ ]; then
@@ -30,6 +31,12 @@ fi
 
 # Copy files
 cp -R samples/* "test spaces/"
+
+# Test quotes too
+cp samples/centaur_2.mpg "test spaces/'test' quotes\"def \"hij.mpg"
+cp samples/centaur_2.mpg "test spaces/multilevel 'quotes/'test' 'quotes\"def \"hij.mpg"
+mkdir "test spaces/with 'some quotes 'too'/"
+cp samples/centaur_2.mpg "test spaces/with 'some quotes 'too'/test \"'a 'b \"c'.mpg"
 
 # Put the container into debug mode, add video path
 rm -f .env

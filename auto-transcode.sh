@@ -20,7 +20,13 @@ touch /videos/skipped_files.txt
 # This is going to run indefinitely (waiting for new files)
 while true; do
 
-    # Find all files
+    # Clean up variables
+    unset FULL_PATH
+    unset FILE
+    unset FILE_WITHOUT_EXT
+    unset PARENT_PATH
+
+    # Find all files (this is a do-while loop, look below)
     while read FULL_PATH; do
         # Ignore empty lines
         if [ ${#FULL_PATH} -eq 0 ]; then
@@ -36,7 +42,7 @@ while true; do
         if [ -f "$FULL_PATH.lock" ]; then
             echo Found a locked file: $FULL_PATH
 
-            # Clean up variables if there is nothing else in the queue
+            # Clean up variables
             unset FULL_PATH
             unset FILE
             unset FILE_WITHOUT_EXT
@@ -56,38 +62,43 @@ while true; do
         debug_echo file without ext: $FILE_WITHOUT_EXT
         debug_echo parent path: $PARENT_PATH
 
-        echo Beginning transcode of $FILE
-
-        # Change working dir
-        pushd "$PARENT_PATH" > /dev/null
-
-        # Clean things up if there is an existing file there
-        rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
-
-        # Wait for container and get exit code
-        transcode-video --add-audio eng --quick "$FILE"
-        RET_VAL=$?
-
-        debug_echo "Finished transcoding of $FILE with an exit code of $RET_VAL"
-
-        # Check if things went ok, if they did remove source and only keep final version
-        if [ $RET_VAL -eq 0 ]; then
-            debug_echo Cleaning up
-
-            # Clean things up
-            rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv.log"
-            rm -f "$FULL_PATH"
+        # Double check the file still exists
+        if [ ! -f $FULL_PATH ]; then
+            echo Error, missing file: $FILE
         else
-            # Something went wrong, keep logs and add file to skip list
-            debug_echo Something went wrong, cleaning temp files
+            echo Beginning transcode of $FILE
+
+            # Change working dir
+            pushd "$PARENT_PATH" > /dev/null
+
+            # Clean things up if there is an existing file there
             rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
-            echo "$FULL_PATH" >> /videos/skipped_files.txt
+
+            # Wait for container and get exit code
+            transcode-video --add-audio eng --quick "$FILE"
+            RET_VAL=$?
+
+            debug_echo "Finished transcoding of $FILE with an exit code of $RET_VAL"
+
+            # Check if things went ok, if they did remove source and only keep final version
+            if [ $RET_VAL -eq 0 ]; then
+                debug_echo Cleaning up
+
+                # Clean things up
+                rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv.log"
+                rm -f "$FULL_PATH"
+            else
+                # Something went wrong, keep logs and add file to skip list
+                debug_echo Something went wrong, cleaning temp files
+                rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
+                echo "$FULL_PATH" >> /videos/skipped_files.txt
+            fi
+
+            # Back to working dir
+            popd > /dev/null
+
+            sleep 1
         fi
-
-        # Back to working dir
-        popd > /dev/null
-
-        sleep 1
     else
         # Nothing
         echo No files found, waiting to check again...
