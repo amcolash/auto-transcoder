@@ -1,17 +1,9 @@
 #!/bin/bash
 
-# Enable for logging + testing
+# Set variable if unset
 if [ -z "$DEBUG" ]; then
     DEBUG=false
 fi
-
-# Helper logging function
-function debug_echo()
-{
-    if [ $DEBUG = true ]; then
-        echo "$@"
-    fi
-}
 
 # Cleanup skipped files - give them another chance
 rm -f /videos/skipped_files.txt
@@ -57,10 +49,10 @@ while true; do
 
     # If we found a file
     if [ ${#FILE} -gt 0 ]; then
-        debug_echo full: $FULL_PATH
-        debug_echo file: $FILE
-        debug_echo file without ext: $FILE_WITHOUT_EXT
-        debug_echo parent path: $PARENT_PATH
+        echo full: $FULL_PATH
+        echo file: $FILE
+        echo file without ext: $FILE_WITHOUT_EXT
+        echo parent path: $PARENT_PATH
 
         # Double check the file still exists
         if [ ! -f $FULL_PATH ]; then
@@ -78,18 +70,18 @@ while true; do
             transcode-video --add-audio eng --quick "$FILE"
             RET_VAL=$?
 
-            debug_echo "Finished transcoding of $FILE with an exit code of $RET_VAL"
+            echo "Finished transcoding of $FILE with an exit code of $RET_VAL"
 
             # Check if things went ok, if they did remove source and only keep final version
-            if [ $RET_VAL -eq 0 ]; then
-                debug_echo Cleaning up
+            if [ $RET_VAL -eq 0 ] && [ -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv" ]; then
+                echo Cleaning up
 
                 # Clean things up
                 rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv.log"
                 rm -f "$FULL_PATH"
             else
                 # Something went wrong, keep logs and add file to skip list
-                debug_echo Something went wrong, cleaning temp files
+                echo Something went wrong, cleaning temp files
                 rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
                 echo "$FULL_PATH" >> /videos/skipped_files.txt
             fi
@@ -109,7 +101,7 @@ while true; do
         fi
 
         # Wait for new files
-        sleep 60
+        sleep 10
     fi
 
 done
