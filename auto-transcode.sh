@@ -103,7 +103,7 @@ while true; do
         fi
 
         # Wait for new files
-        sleep 10
+        sleep 60
     fi
 
 done
