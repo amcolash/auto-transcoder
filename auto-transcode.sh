@@ -21,7 +21,7 @@ while true; do
     # Find all files (this is a do-while loop, look below)
     while read FULL_PATH; do
         # Ignore empty lines and if the file doesn't exist for some reason
-        if [ ${#FULL_PATH} -eq 0 ] || [ ! -f $FULL_PATH ]; then
+        if [ $(expr length "$FULL_PATH") -eq 0 ] || [ ! -f "$FULL_PATH" ]; then
             continue
         fi
 
@@ -57,7 +57,7 @@ while true; do
         echo parent path: $PARENT_PATH
 
         # Double check the file still exists
-        if [ ! -f $FULL_PATH ]; then
+        if [ ! -f "$FULL_PATH" ]; then
             echo Error, missing file: $FILE
         else
             echo Beginning transcode of $FILE
