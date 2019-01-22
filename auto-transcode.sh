@@ -47,7 +47,7 @@ while true; do
         fi
 
     # Some bash magic that makes this all run in the same process, the found files are piped in a different way to the loop
-    done < <(find "/videos" -name '*.mpg' -o -name '*.ts' | sort | grep -vaFf "/videos/skipped_files.txt")
+    done < <(find "/videos" -name '*.mpg' -o -name '*.ts' -mmin +240 | sort | grep -vaFf "/videos/skipped_files.txt")
 
     # If we found a file
     if [ ${#FILE} -gt 0 ]; then
