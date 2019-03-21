@@ -7,10 +7,11 @@ fi
 
 # Cleanup skipped files - give them another chance
 rm -f /videos/skipped_files.txt
-touch /videos/skipped_files.txt
 
 # This is going to run indefinitely (waiting for new files)
 while true; do
+    # Make sure that skipped files always exists
+    touch /videos/skipped_files.txt
 
     # Clean up variables
     unset FULL_PATH
