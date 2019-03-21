@@ -82,10 +82,32 @@ while true; do
                 rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv.log"
                 rm -f "$FULL_PATH"
             else
-                # Something went wrong, keep logs and add file to skip list
-                echo Something went wrong, cleaning temp files
-                rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
-                echo "$FULL_PATH" >> /videos/skipped_files.txt
+                # Check if things can be salvaged (should be ok if the duration matches)
+                ORIGINAL_DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$FULL_PATH")
+                TRANSCODE_DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv")
+
+                # Check if the durations are within 1.5% of each other
+                EXPRESSION="scale = 4;
+                a = ($TRANSCODE_DURATION / $ORIGINAL_DURATION) - 1;
+                if(a < 0) a *= -1;
+                if(a < 0.015) a = 1 else a = 0;
+                a;"
+
+                VALID=$(echo $EXPRESSION | bc)
+
+                # If the video files have similar enough durations, keep the transcoded version
+                if [ $VALID -eq 1 ]; then
+                    echo Video seemed to have valid duration, ignoring status and cleaning up
+
+                    # Clean things up
+                    rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv.log"
+                    rm -f "$FULL_PATH"
+                else 
+                    # Something went wrong, keep logs and add file to skip list
+                    echo Something went wrong, cleaning temp files
+                    rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
+                    echo "$FULL_PATH" >> /videos/skipped_files.txt
+                fi
             fi
 
             # Back to working dir
