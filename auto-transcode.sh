@@ -70,7 +70,7 @@ while true; do
             rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"
 
             # Wait for container and get exit code
-            transcode-video --add-audio eng --quick "$FILE"
+            transcode-video --main-audio eng --add-audio eng,jap --quick "$FILE"
             RET_VAL=$?
 
             echo "Finished transcoding of $FILE with an exit code of $RET_VAL"
