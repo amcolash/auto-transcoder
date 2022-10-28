@@ -48,7 +48,7 @@ while true; do
         fi
 
     # Some bash magic that makes this all run in the same process, the found files are piped in a different way to the loop
-    done < <(find "/videos" -name '*.mpg' -o -name '*.ts' -mmin +240 | sort | grep -vaFf "/videos/skipped_files.txt")
+    done < <(find "/videos" -name '*.mpg' -o -name '*.ts' -mmin +20 | sort | grep -vaFf "/videos/skipped_files.txt")
 
     # If we found a file
     if [ ${#FILE} -gt 0 ]; then
@@ -103,7 +103,7 @@ while true; do
                     # Clean things up
                     rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv.log"
                     rm -f "$FULL_PATH"
-                else 
+                else
                     # Something went wrong, keep logs and add file to skip list
                     echo Something went wrong, cleaning temp files
                     rm -f "$PARENT_PATH/$FILE_WITHOUT_EXT.mkv"

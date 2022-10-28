@@ -15,6 +15,8 @@ if [ ! -d samples/ ]; then
 
     # Get videos
     pushd samples > /dev/null
+    wget https://github.com/Matroska-Org/matroska-test-files/raw/master/test_files/test5.mkv
+    mv test5.mkv test5.mpg
     wget http://hubblesource.stsci.edu/sources/video/clips/details/images/centaur_2.mpg
 
     touch "not a video.ts"
